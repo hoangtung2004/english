@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lỗi - <%= message %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Học Tiếng Anh</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lessons">Bài học</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vocabulary">Từ vựng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/practice">Luyện tập</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h1 class="display-1 text-danger mb-4">Oops!</h1>
+                        <h2 class="mb-4"><%= message %></h2>
+                        <% if (error && Object.keys(error).length > 0) { %>
+                            <div class="alert alert-danger text-start">
+                                <h5 class="alert-heading">Chi tiết lỗi:</h5>
+                                <pre class="mb-0"><%= JSON.stringify(error, null, 2) %></pre>
+                            </div>
+                        <% } %>
+                        <p class="lead mb-4">Đã xảy ra lỗi khi xử lý yêu cầu của bạn.</p>
+                        <a href="/" class="btn btn-primary">Quay về trang chủ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

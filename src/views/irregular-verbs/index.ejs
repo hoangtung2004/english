@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        table.ipa-table {
+            background: #e9eaf6;
+            border: 1px solid #666;
+        }
+        table.ipa-table th, table.ipa-table td {
+            border: 1px solid #666;
+            text-align: center;
+            vertical-align: middle;
+        }
+        table.ipa-table th {
+            background: #bfc2e2;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Học Tiếng Anh</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lessons">Bài học</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vocabulary">Từ vựng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/practice">Luyện tập</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/irregular-verbs">Động từ bất quy tắc</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Động từ bất quy tắc</h1>
+        <div class="table-responsive">
+            <table class="table ipa-table">
+                <thead>
+                    <tr>
+                        <th>Nguyên thể (V1)</th>
+                        <th>Quá khứ (V2)</th>
+                        <th>Quá khứ phân từ (V3)</th>
+                        <th>Nghĩa của từ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (verbs.length === 0) { %>
+                        <tr><td colspan="4">Chưa có dữ liệu động từ bất quy tắc.</td></tr>
+                    <% } else { %>
+                        <% verbs.forEach(verb => { %>
+                            <tr>
+                                <td><%= verb.v1 %></td>
+                                <td><%= verb.v2 %></td>
+                                <td><%= verb.v3 %></td>
+                                <td><%= verb.meaning %></td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

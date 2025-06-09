@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Học Tiếng Anh</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lessons">Bài học</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/vocabulary">Từ vựng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/practice">Luyện tập</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/vocabulary">Từ vựng</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><%= vocabulary.word %></li>
+                    </ol>
+                </nav>
+
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <h1 class="display-4 mb-4"><%= vocabulary.word %></h1>
+                        <p class="lead text-muted mb-4"><%= vocabulary.pronunciation %></p>
+                        
+                        <% if (vocabulary.image) { %>
+                            <img src="<%= vocabulary.image %>" class="img-fluid rounded mb-4" alt="<%= vocabulary.word %>" style="max-height: 300px;">
+                        <% } %>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Nghĩa</h5>
+                                        <p class="card-text"><%= vocabulary.meaning %></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Ví dụ</h5>
+                                        <p class="card-text"><%= vocabulary.example %></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="badge bg-<%= vocabulary.category === 'basic' ? 'success' : vocabulary.category === 'intermediate' ? 'warning' : 'danger' %>">
+                                <%= vocabulary.category === 'basic' ? 'Cơ bản' : vocabulary.category === 'intermediate' ? 'Trung cấp' : 'Nâng cao' %>
+                            </span>
+                            <span class="badge bg-info"><%= vocabulary.topic %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Tiến độ học tập</h5>
+                            <div class="progress mb-3">
+                                <div class="progress-bar <%= userProgress ? (userProgress.status === 'mastered' ? 'w-100' : userProgress.status === 'learning' ? 'w-50' : 'w-0') : 'w-0' %>" role="progressbar"
+                                     aria-valuenow="<%= userProgress ? (userProgress.status === 'mastered' ? '100' : userProgress.status === 'learning' ? '50' : '0') : '0' %>" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    <%= userProgress ? (userProgress.status === 'mastered' ? 'Đã thuộc' : userProgress.status === 'learning' ? 'Đang học' : 'Chưa học') : 'Chưa học' %>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-outline-primary" onclick="updateProgress('not_learned')">Chưa học</button>
+                                <button class="btn btn-outline-warning" onclick="updateProgress('learning')">Đang học</button>
+                                <button class="btn btn-outline-success" onclick="updateProgress('mastered')">Đã thuộc</button>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <div class="text-center">
+                    <a href="/vocabulary" class="btn btn-secondary">Quay lại danh sách</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function updateProgress(status) {
+            try {
+                const response = await fetch(`/vocabulary/${vocabulary._id}/progress`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Có lỗi xảy ra');
+                }
+
+                if (data.success) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Học Tiếng Anh</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lessons">Bài học</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vocabulary">Từ vựng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/practice">Luyện tập</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div id="practiceHeader">
+                    <div class="mb-4" style="margin-top:60px;">
+                        <div id="level-bar-chart" style="max-width:500px;margin:0 auto;">
+                            <div style="display:flex;align-items:flex-end;justify-content:space-between;height:200px;position:relative;">
+                                <div class="level-col">
+                                    <div class="level-count" style="color:#d32f2f;">0 từ</div>
+                                    <div class="level-bar" style="height:20px;background:#e57373;"></div>
+                                    <div class="level-label">1</div>
+                                </div>
+                                <div class="level-col">
+                                    <div class="level-count" style="color:#fbc02d;">0 từ</div>
+                                    <div class="level-bar" style="height:20px;background:#ffe082;"></div>
+                                    <div class="level-label">2</div>
+                                </div>
+                                <div class="level-col">
+                                    <div class="level-count" style="color:#039be5;">0 từ</div>
+                                    <div class="level-bar" style="height:20px;background:#81d4fa;"></div>
+                                    <div class="level-label">3</div>
+                                </div>
+                                <div class="level-col">
+                                    <div class="level-count" style="color:#1976d2;">0 từ</div>
+                                    <div class="level-bar" style="height:20px;background:#90caf9;"></div>
+                                    <div class="level-label">4</div>
+                                </div>
+                                <div class="level-col">
+                                    <div class="level-count" style="color:#1a237e;font-weight:bold;">0 từ</div>
+                                    <div class="level-bar" style="height:20px;background:#283593;"></div>
+                                    <div class="level-label">5</div>
+                                </div>
+                                <div style="position:absolute;left:0;right:0;bottom:-10px;height:8px;background:#ccc;border-radius:4px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" style="font-size:1.2rem;">
+                        <span style="color:#ff9800;">Chuẩn bị ôn tập: <b id="reviewCount">0 từ</b></span>
+                    </div>
+                    <div class="mb-4">
+                        <button id="mainActionBtn" class="btn btn-success btn-lg px-5 py-3" style="font-size:1.3rem;border-radius:2rem;box-shadow:0 4px 0 #388e3c;">Học từ mới</button>
+                    </div>
+                </div>
+                <div id="practiceArea" style="display:none;">
+                    <div id="practiceContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        #level-bar-chart {margin-bottom:10px;}
+        .level-col {display:flex;flex-direction:column;align-items:center;flex:1;z-index:2;}
+        .level-bar {
+            width:54px;
+            border-radius:18px 18px 18px 18px/32px 32px 8px 8px;
+            margin-bottom:8px;
+            box-shadow:0 4px 12px rgba(40,53,147,0.08);
+            display:flex;
+            align-items:flex-end;
+        }
+        .level-count {
+            font-size:1.1rem;
+            font-weight:600;
+            margin-bottom:8px;
+        }
+        .level-label {
+            font-size:1.5rem;
+            font-weight:700;
+            margin-top:8px;
+        }
+        #practiceHeader { transition: 0.4s; }
+        #practiceArea { transition: 0.4s; }
+        /* Flashcard flip */
+        .flashcard-outer { perspective: 1000px; }
+        .flashcard {
+            width: 100%;
+            min-height: 220px;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+            position: relative;
+            cursor: pointer;
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            top: 0; left: 0;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard .btn { pointer-events: auto; }
+        .flashcard-back .btn { margin-top: 8px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- Kết nối backend ---
+        let reviewWords = [];
+        let PRACTICE_TYPES = ['listen', 'fill', 'flashcard'];
+        let queue = [];
+        let current = null;
+        let progressMap = {};
+        // Lấy dữ liệu từ backend khi bắt đầu ôn tập
+        async function fetchPracticeData() {
+            const res = await fetch('/practice/data');
+            const data = await res.json();
+            if (data.success) {
+                reviewWords = data.words;
+                // Khởi tạo queue luyện tập
+                queue = reviewWords.map(w => ({...w, remain: [...PRACTICE_TYPES]}));
+                // Map id để gửi kết quả
+                progressMap = {};
+                reviewWords.forEach(w => { progressMap[w.word] = w.id; });
+            } else {
+                reviewWords = [];
+                queue = [];
+            }
+        }
+        // Gửi kết quả luyện tập về backend
+        async function sendPracticeResult(word, result) {
+            const id = word.id || progressMap[word.word];
+            if (!id) return;
+            await fetch('/practice/progress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, result })
+            });
+        }
+        function pickRandomType(remain) {
+            return remain[Math.floor(Math.random() * remain.length)];
+        }
+        function nextPractice() {
+            if (queue.length === 0) {
+                document.getElementById('practiceContent').innerHTML = `
+                    <div class="alert alert-success mb-4">Bạn đã hoàn thành ôn tập hôm nay!</div>
+                    <button class="btn btn-success btn-lg" onclick="window.location.href='/practice'">Hoàn thành</button>
+                `;
+                return;
+            }
+            // Lấy từ đầu queue
+            current = queue.shift();
+            // Chọn dạng bài tập ngẫu nhiên trong các dạng còn lại
+            current.type = pickRandomType(current.remain);
+            renderPractice(current);
+        }
+        function renderPractice(word) {
+            let html = '';
+            if (word.type === 'listen') {
+                html = `
+                    <div class="mb-3" style="font-size:1.2rem;color:#888;">Nghe & điền từ</div>
+                    <button class="btn btn-light mb-3" onclick="playAudio()"><span>🔊</span> Nghe phát âm</button>
+                    <div class="mb-3"><input id="listenInput" type="text" class="form-control form-control-lg text-center" placeholder="Nhập từ bạn nghe được" autocomplete="off"></div>
+                    <button class="btn btn-primary" onclick="checkListen()">Kiểm tra</button>
+                `;
+            } else if (word.type === 'fill') {
+                html = `
+                    <div class="mb-3" style="font-size:1.2rem;color:#888;">Điền từ</div>
+                    <div class="mb-3" style="font-size:2rem;">${word.meaning}</div>
+                    <div class="mb-3"><input id="fillInput" type="text" class="form-control form-control-lg text-center" placeholder="Nhập từ tiếng Anh" autocomplete="off"></div>
+                    <button class="btn btn-primary" onclick="checkFill()">Kiểm tra</button>
+                `;
+            } else if (word.type === 'flashcard') {
+                html = `
+                    <div class="flashcard-outer mx-auto mb-4" style="max-width:400px;">
+                        <div class="flashcard card" id="flashcard" tabindex="0">
+                            <div class="flashcard-front card-body text-center">
+                                <h2 class="card-title">${word.word}</h2>
+                                <p class="card-text text-muted">${word.pron}</p>
+                                <div class="text-muted" style="font-size:1.1rem;">(Click để lật thẻ)</div>
+                            </div>
+                            <div class="flashcard-back card-body text-center">
+                                <p><b>Nghĩa:</b> ${word.meaning}</p>
+                                <p><b>Ví dụ:</b> ${word.example}</p>
+                                <div class="mt-4">
+                                    <button class="btn btn-success me-2" onclick="flashcardRemember()">Tôi nhớ</button>
+                                    <button class="btn btn-outline-danger" onclick="flashcardForget()">Tôi quên</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('practiceContent').innerHTML = html;
+            if (word.type === 'flashcard') {
+                setTimeout(() => {
+                    const card = document.getElementById('flashcard');
+                    let flipped = false;
+                    card.addEventListener('click', function() {
+                        flipped = !flipped;
+                        card.classList.toggle('flipped', flipped);
+                    });
+                }, 10);
+            }
+        }
+        // Hàm kiểm tra dạng nghe-điền
+        window.checkListen = function() {
+            const val = document.getElementById('listenInput').value.trim().toLowerCase();
+            if (val === current.word.toLowerCase()) {
+                afterCorrect();
+            } else {
+                afterWrong();
+            }
+        }
+        // Hàm kiểm tra dạng điền từ
+        window.checkFill = function() {
+            const val = document.getElementById('fillInput').value.trim().toLowerCase();
+            if (val === current.word.toLowerCase()) {
+                afterCorrect();
+            } else {
+                afterWrong();
+            }
+        }
+        // Flashcard: nhớ
+        window.flashcardRemember = function() {
+            afterCorrect();
+        }
+        // Flashcard: quên
+        window.flashcardForget = function() {
+            afterWrong();
+        }
+        // Xử lý đúng
+        function afterCorrect() {
+            sendPracticeResult(current, 'correct');
+            setTimeout(nextPractice, 400);
+        }
+        // Xử lý sai
+        function afterWrong() {
+            sendPracticeResult(current, 'wrong');
+            queue.push(current);
+            setTimeout(nextPractice, 400);
+        }
+        // (Demo) play audio
+        window.playAudio = function() {
+            const utterance = new SpeechSynthesisUtterance(current.word);
+            utterance.lang = 'en-US';
+            speechSynthesis.speak(utterance);
+        }
+        // Bắt đầu luyện tập
+        const mainBtn = document.getElementById('mainActionBtn');
+        function updateMainBtn() {
+            // Số từ cần ôn sẽ lấy từ backend nếu muốn hiển thị động
+            mainBtn.textContent = 'Bắt đầu ôn tập';
+            mainBtn.className = 'btn btn-primary btn-lg px-5 py-3';
+            mainBtn.onclick = async function() {
+                document.getElementById('practiceHeader').style.display = 'none';
+                document.getElementById('practiceArea').style.display = '';
+                await fetchPracticeData();
+                if (queue.length === 0) {
+                    document.getElementById('practiceContent').innerHTML = '<div class="alert alert-info">Không có từ nào cần ôn tập hôm nay!</div>';
+                } else {
+                    nextPractice();
+                }
+            };
+        }
+        updateMainBtn();
+        // --- Biểu đồ động hoàn toàn ---
+        async function updateLevelChart() {
+            try {
+                const res = await fetch('/practice/level-stats');
+                const data = await res.json();
+                if (data.success) {
+                    const levels = data.levels;
+                    const max = Math.max(...levels, 1);
+                    const maxHeight = 180; // px
+                    const cols = document.querySelectorAll('.level-col');
+                    levels.forEach((count, idx) => {
+                        const countEl = cols[idx].querySelector('.level-count');
+                        countEl.textContent = count + ' từ';
+                        const bar = cols[idx].querySelector('.level-bar');
+                        bar.style.height = (count > 0 ? (count / max * maxHeight) : 20) + 'px';
+                    });
+                }
+            } catch (e) {}
+        }
+        updateLevelChart();
+        // --- Số từ cần ôn tập động ---
+        async function updateReviewCount() {
+            try {
+                const res = await fetch('/practice/data');
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('reviewCount').textContent = data.words.length + ' từ';
+                }
+            } catch (e) {}
+        }
+        updateReviewCount();
+    </script>
+</body>
+</html> 

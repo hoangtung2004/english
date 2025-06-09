@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .card.home-feature {
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .card.home-feature .btn {
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Học Tiếng Anh</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lessons">Bài học</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vocabulary">Từ vựng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/practice">Luyện tập</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <% if (user) { %>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <%= user.username %>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <% if (user.role === 'admin') { %>
+                                    <li><a class="dropdown-item" href="/admin">Quản lý</a></li>
+                                <% } %>
+                                <li><a class="dropdown-item" href="/profile">Tài khoản</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/auth/logout">Đăng xuất</a></li>
+                            </ul>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/login">Đăng nhập</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/register">Đăng ký</a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2 text-center">
+                <h1 class="display-4 mb-4">Chào mừng đến với Học Tiếng Anh</h1>
+                <p class="lead mb-4">Học tiếng Anh hiệu quả với phương pháp học tập thông minh</p>
+                
+                <% if (!user) { %>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-4">
+                        <a href="/auth/register" class="btn btn-primary btn-lg px-4 me-md-2">Bắt đầu ngay</a>
+                        <a href="/auth/login" class="btn btn-outline-secondary btn-lg px-4">Mình đã có tài khoản</a>
+                    </div>
+                <% } %>
+                <% if (user) { %>
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card home-feature">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <h5 class="card-title">Bài học</h5>
+                                <p class="card-text">Học các bài học theo trình độ của bạn</p>
+                                <a href="/lessons" class="btn btn-primary">Xem bài học</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card home-feature">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <h5 class="card-title">Từ vựng</h5>
+                                <p class="card-text">Học và ôn tập từ vựng</p>
+                                <a href="/vocabulary" class="btn btn-primary">Học từ vựng</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card home-feature">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <h5 class="card-title">Luyện tập</h5>
+                                <p class="card-text">Luyện tập với các bài tập</p>
+                                <a href="/practice" class="btn btn-primary">Luyện tập</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card home-feature">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <h5 class="card-title">Bảng phiên âm IPA</h5>
+                                <p class="card-text">Tra cứu và luyện tập các ký hiệu phiên âm quốc tế IPA.</p>
+                                <a href="/ipa" class="btn btn-success">Xem bảng IPA</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card home-feature">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <h5 class="card-title">Động từ bất quy tắc</h5>
+                                <p class="card-text">Danh sách và luyện tập động từ bất quy tắc trong tiếng Anh.</p>
+                                <a href="/irregular-verbs" class="btn btn-success">Xem động từ</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
