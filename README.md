@@ -4,7 +4,7 @@
 
 1. Clone project:
    ```
-   git clone <link-repo>
+   git clone https://github.com/hoangtung2004/english
    cd <tên-thư-mục-project>
    ```
 
