@@ -80,6 +80,16 @@
             </div>
         </div>
     </div>
+    <!-- Modal thông báo đúng/sai -->
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body text-center" id="resultModalBody">
+            <!-- Nội dung sẽ được cập nhật bằng JS -->
+          </div>
+        </div>
+      </div>
+    </div>
     <style>
         #level-bar-chart {margin-bottom:10px;}
         .level-col {display:flex;flex-direction:column;align-items:center;flex:1;z-index:2;}
@@ -133,21 +143,29 @@
     <script>
         // --- Kết nối backend ---
         let reviewWords = [];
-        let PRACTICE_TYPES = ['listen', 'fill', 'flashcard'];
+        let PRACTICE_TYPES = ['listen', 'fill', 'flashcard', 'multiple'];
         let queue = [];
         let current = null;
         let progressMap = {};
+        // Thêm âm thanh đúng/sai
+        const correctAudio = new Audio('/sounds/correct.mp3');
+        const wrongAudio = new Audio('/sounds/wrong.mp3');
+        // Thống kê
+        let totalWords = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
         // Lấy dữ liệu từ backend khi bắt đầu ôn tập
         async function fetchPracticeData() {
             const res = await fetch('/practice/data');
             const data = await res.json();
             if (data.success) {
                 reviewWords = data.words;
-                // Khởi tạo queue luyện tập
                 queue = reviewWords.map(w => ({...w, remain: [...PRACTICE_TYPES]}));
-                // Map id để gửi kết quả
                 progressMap = {};
                 reviewWords.forEach(w => { progressMap[w.word] = w.id; });
+                totalWords = reviewWords.length;
+                correctCount = 0;
+                wrongCount = 0;
             } else {
                 reviewWords = [];
                 queue = [];
@@ -168,8 +186,18 @@
         }
         function nextPractice() {
             if (queue.length === 0) {
+                const percent = totalWords ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
                 document.getElementById('practiceContent').innerHTML = `
                     <div class="alert alert-success mb-4">Bạn đã hoàn thành ôn tập hôm nay!</div>
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <h4 class="mb-3">Thống kê kết quả</h4>
+                            <div class="mb-2">Tổng số từ ôn: <b>${totalWords}</b></div>
+                            <div class="mb-2 text-success">Số lần đúng: <b>${correctCount}</b></div>
+                            <div class="mb-2 text-danger">Số lần sai: <b>${wrongCount}</b></div>
+                            <div class="mb-2">Tỷ lệ đúng: <b>${percent}%</b></div>
+                        </div>
+                    </div>
                     <button class="btn btn-success btn-lg" onclick="window.location.href='/practice'">Hoàn thành</button>
                 `;
                 return;
@@ -195,6 +223,26 @@
                     <div class="mb-3" style="font-size:2rem;">${word.meaning}</div>
                     <div class="mb-3"><input id="fillInput" type="text" class="form-control form-control-lg text-center" placeholder="Nhập từ tiếng Anh" autocomplete="off"></div>
                     <button class="btn btn-primary" onclick="checkFill()">Kiểm tra</button>
+                `;
+            } else if (word.type === 'multiple') {
+                // Sinh 3 lựa chọn sai ngẫu nhiên
+                let options = [word.word];
+                let pool = reviewWords.filter(w => w.word !== word.word).map(w => w.word);
+                while (options.length < 4 && pool.length > 0) {
+                    const idx = Math.floor(Math.random() * pool.length);
+                    options.push(pool[idx]);
+                    pool.splice(idx, 1);
+                }
+                // Xáo trộn đáp án
+                options = options.sort(() => Math.random() - 0.5);
+                html = `
+                    <div class="mb-3" style="font-size:1.2rem;color:#888;">Chọn từ đúng với nghĩa sau</div>
+                    <div class="mb-3" style="font-size:2rem;">${word.meaning}</div>
+                    <div class="mb-3">
+                        ${options.map(opt => `
+                            <button class="btn btn-outline-primary btn-lg d-block w-100 mb-2" onclick="checkChoice(this, '${opt.replace(/'/g, "\'")}', '${word.word}')">${opt}</button>
+                        `).join('')}
+                    </div>
                 `;
             } else if (word.type === 'flashcard') {
                 html = `
@@ -258,13 +306,17 @@
         // Xử lý đúng
         function afterCorrect() {
             sendPracticeResult(current, 'correct');
-            setTimeout(nextPractice, 400);
+            showFeedback(true);
+            correctAudio.currentTime = 0; correctAudio.play();
+            correctCount++;
         }
         // Xử lý sai
         function afterWrong() {
             sendPracticeResult(current, 'wrong');
+            showFeedback(false);
+            wrongAudio.currentTime = 0; wrongAudio.play();
+            wrongCount++;
             queue.push(current);
-            setTimeout(nextPractice, 400);
         }
         // (Demo) play audio
         window.playAudio = function() {
@@ -321,6 +373,96 @@
             } catch (e) {}
         }
         updateReviewCount();
+        // Hiển thị thông báo phản hồi dạng card đẹp
+        function showFeedback(isCorrect) {
+            // Xóa feedback cũ nếu có
+            const old = document.getElementById('feedbackCard');
+            if (old) old.remove();
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.id = 'feedbackCard';
+            feedbackDiv.style.position = 'fixed';
+            feedbackDiv.style.top = '50%';
+            feedbackDiv.style.left = '50%';
+            feedbackDiv.style.transform = 'translate(-50%, -50%)';
+            feedbackDiv.style.zIndex = '2000';
+            feedbackDiv.style.background = isCorrect ? '#43a047' : '#e53935';
+            feedbackDiv.style.color = '#fff';
+            feedbackDiv.style.borderRadius = '24px';
+            feedbackDiv.style.boxShadow = '0 8px 32px rgba(0,0,0,0.18)';
+            feedbackDiv.style.padding = '40px 32px 32px 32px';
+            feedbackDiv.style.textAlign = 'center';
+            feedbackDiv.style.minWidth = '320px';
+            feedbackDiv.style.maxWidth = '90vw';
+            feedbackDiv.innerHTML = `
+                <div style="font-size: 56px; margin-bottom: 12px;">${isCorrect ? '✅' : '❌'}</div>
+                <div style="font-size: 2rem; font-weight: bold; margin-bottom: 8px;">
+                    ${isCorrect ? 'Chính xác!' : 'Chưa đúng!'}
+                </div>
+                ${!isCorrect ? `<div style='font-size:1.2rem;margin-bottom:8px;'>Đáp án đúng: <b>${current.word}</b></div>` : ''}
+                <div style='font-size:1.1rem;margin-bottom:16px;'>${current.example ? current.example : ''}</div>
+                <button id="feedbackNextBtn" class="btn btn-light btn-lg px-5 py-2 mt-2" style="border-radius:2rem;font-size:1.2rem;font-weight:600;box-shadow:0 2px 0 #bbb;">Tiếp tục</button>
+            `;
+            document.body.appendChild(feedbackDiv);
+            document.getElementById('feedbackNextBtn').onclick = function() {
+                feedbackDiv.remove();
+                nextPractice();
+            };
+        }
+        // Hàm kiểm tra đáp án trắc nghiệm
+        function showResultModal(isCorrect, message, example) {
+            let icon = isCorrect
+                ? '<div style="font-size:3rem;">✅</div>'
+                : '<div style="font-size:3rem;">❌</div>';
+            let color = isCorrect ? 'bg-success text-white' : 'bg-danger text-white';
+            let html = `
+                <div class="${color} p-4 rounded">
+                    ${icon}
+                    <h3 class="mb-2">${isCorrect ? 'Chính xác!' : 'Sai rồi!'}</h3>
+                    <div class="mb-2">${message}</div>
+                    ${example ? `<div class="mb-3"><em>${example}</em></div>` : ''}
+                    <button class="btn btn-light" id="modalContinueBtn">Tiếp tục</button>
+                </div>
+            `;
+            document.getElementById('resultModalBody').innerHTML = html;
+            var modal = new bootstrap.Modal(document.getElementById('resultModal'));
+            modal.show();
+            setTimeout(() => {
+                document.getElementById('modalContinueBtn').focus();
+            }, 200);
+            document.getElementById('modalContinueBtn').onclick = function() {
+                modal.hide();
+                setTimeout(() => { nextPractice(); }, 200);
+            };
+        }
+        function checkChoice(btn, selected, correct) {
+            const allBtns = btn.parentNode.querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+            if (selected === correct) {
+                btn.classList.remove('btn-outline-primary', 'btn-outline-success');
+                btn.classList.add('btn-success');
+                correctAudio.currentTime = 0; correctAudio.play();
+                correctCount++;
+                showResultModal(true, 'Bạn đã chọn đúng đáp án!', current && current.example ? current.example : '');
+            } else {
+                btn.classList.remove('btn-outline-primary', 'btn-outline-success');
+                btn.classList.add('btn-danger');
+                allBtns.forEach(b => {
+                    if (b.textContent.trim() === correct) {
+                        b.classList.remove('btn-outline-primary', 'btn-outline-success');
+                        b.classList.add('btn-success');
+                    }
+                });
+                wrongAudio.currentTime = 0; wrongAudio.play();
+                wrongCount++;
+                if (current) {
+                    current.remain = current.remain.filter(t => t !== current.type);
+                    if (current.remain.length > 0) {
+                        queue.push(current);
+                    }
+                }
+                showResultModal(false, 'Đáp án đúng là: ' + correct, current && current.example ? current.example : '');
+            }
+        }
     </script>
 </body>
 </html> 

@@ -6,7 +6,8 @@ exports.getAllLessons = async (req, res) => {
         const lessons = await Lesson.find().sort({ createdAt: -1 });
         res.render('lessons/index', { 
             title: 'Danh sách bài học',
-            lessons 
+            lessons,
+            user: req.session.user
         });
     } catch (error) {
         res.status(500).render('error', { 

@@ -37,7 +37,9 @@
         <div class="row mb-4">
             <div class="col">
                 <h1 class="display-4">Danh sách bài học</h1>
-                <a href="/lessons/create" class="btn btn-primary">Tạo bài học mới</a>
+                <% if (user && user.role === 'admin') { %>
+                    <a href="/lessons/create" class="btn btn-primary">Tạo bài học mới</a>
+                <% } %>
             </div>
         </div>
 

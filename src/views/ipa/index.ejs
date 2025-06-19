@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .ipa-card {
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: none;
+            margin-bottom: 20px;
+        }
+        .ipa-symbol {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .ipa-example {
+            font-style: italic;
+            color: #666;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .ipa-vietnamese {
+            color: #28a745;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .ipa-description {
+            font-size: 0.9rem;
+            color: #888;
+            text-align: center;
+        }
+        .section-title {
+            color: #495057;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .practice-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            border-radius: 50px;
+            padding: 15px 30px;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        .vowel-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+        .consonant-card {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+        .diphthong-card {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        }
+        .play-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .play-btn:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+        .play-btn.playing {
+            background: #28a745;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .ipa-symbol-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Học Tiếng Anh</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lessons">Bài học</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vocabulary">Từ vựng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/practice">Luyện tập</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <%= user.username %>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <% if (user.role === 'admin') { %>
+                                <li><a class="dropdown-item" href="/admin">Quản lý</a></li>
+                            <% } %>
+                            <li><a class="dropdown-item" href="/profile">Tài khoản</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/auth/logout">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">Bảng phiên âm quốc tế IPA</h1>
+                <p class="text-center text-muted mb-5">
+                    Học và tra cứu các ký hiệu phiên âm quốc tế trong tiếng Anh
+                </p>
+            </div>
+        </div>
+
+        <!-- Nguyên âm -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="section-title">Nguyên âm (Vowels)</h2>
+            </div>
+            
+            <!-- Nguyên âm trước -->
+            <div class="col-md-4 mb-4">
+                <h4 class="text-primary">Nguyên âm trước (Front Vowels)</h4>
+                <div class="row">
+                    <% ipaData.vowels.front.forEach(vowel => { %>
+                        <div class="col-6 mb-3">
+                            <div class="card ipa-card vowel-card h-100">
+                                <div class="card-body text-center">
+                                    <div class="ipa-symbol-container">
+                                        <div class="ipa-symbol">/<%= vowel.symbol %>/</div>
+                                        <button class="play-btn" onclick="playSound('<%= vowel.example %>', this)" title="Nghe phát âm">
+                                            <i class="bi bi-volume-up"></i> 🔊
+                                        </button>
+                                    </div>
+                                    <div class="ipa-example"><%= vowel.example %></div>
+                                    <div class="ipa-vietnamese"><%= vowel.vietnamese %></div>
+                                    <div class="ipa-description"><%= vowel.description %></div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Nguyên âm giữa -->
+            <div class="col-md-4 mb-4">
+                <h4 class="text-primary">Nguyên âm giữa (Central Vowels)</h4>
+                <div class="row">
+                    <% ipaData.vowels.central.forEach(vowel => { %>
+                        <div class="col-6 mb-3">
+                            <div class="card ipa-card vowel-card h-100">
+                                <div class="card-body text-center">
+                                    <div class="ipa-symbol-container">
+                                        <div class="ipa-symbol">/<%= vowel.symbol %>/</div>
+                                        <button class="play-btn" onclick="playSound('<%= vowel.example %>', this)" title="Nghe phát âm">
+                                            <i class="bi bi-volume-up"></i> 🔊
+                                        </button>
+                                    </div>
+                                    <div class="ipa-example"><%= vowel.example %></div>
+                                    <div class="ipa-vietnamese"><%= vowel.vietnamese %></div>
+                                    <div class="ipa-description"><%= vowel.description %></div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Nguyên âm sau -->
+            <div class="col-md-4 mb-4">
+                <h4 class="text-primary">Nguyên âm sau (Back Vowels)</h4>
+                <div class="row">
+                    <% ipaData.vowels.back.forEach(vowel => { %>
+                        <div class="col-6 mb-3">
+                            <div class="card ipa-card vowel-card h-100">
+                                <div class="card-body text-center">
+                                    <div class="ipa-symbol-container">
+                                        <div class="ipa-symbol">/<%= vowel.symbol %>/</div>
+                                        <button class="play-btn" onclick="playSound('<%= vowel.example %>', this)" title="Nghe phát âm">
+                                            <i class="bi bi-volume-up"></i> 🔊
+                                        </button>
+                                    </div>
+                                    <div class="ipa-example"><%= vowel.example %></div>
+                                    <div class="ipa-vietnamese"><%= vowel.vietnamese %></div>
+                                    <div class="ipa-description"><%= vowel.description %></div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phụ âm -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="section-title">Phụ âm (Consonants)</h2>
+            </div>
+            
+            <% Object.entries(ipaData.consonants).forEach(([category, consonants]) => { %>
+                <div class="col-md-6 mb-4">
+                    <h4 class="text-primary">
+                        <% if (category === 'plosives') { %>Phụ âm tắc (Plosives)<% } %>
+                        <% if (category === 'fricatives') { %>Phụ âm xát (Fricatives)<% } %>
+                        <% if (category === 'affricates') { %>Phụ âm tắc-xát (Affricates)<% } %>
+                        <% if (category === 'nasals') { %>Phụ âm mũi (Nasals)<% } %>
+                        <% if (category === 'approximants') { %>Phụ âm tiếp cận (Approximants)<% } %>
+                    </h4>
+                    <div class="row">
+                        <% consonants.forEach(consonant => { %>
+                            <div class="col-6 mb-3">
+                                <div class="card ipa-card consonant-card h-100">
+                                    <div class="card-body text-center">
+                                        <div class="ipa-symbol-container">
+                                            <div class="ipa-symbol">/<%= consonant.symbol %>/</div>
+                                            <button class="play-btn" onclick="playSound('<%= consonant.example %>', this)" title="Nghe phát âm">
+                                                <i class="bi bi-volume-up"></i> 🔊
+                                            </button>
+                                        </div>
+                                        <div class="ipa-example"><%= consonant.example %></div>
+                                        <div class="ipa-vietnamese"><%= consonant.vietnamese %></div>
+                                        <div class="ipa-description"><%= consonant.description %></div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+
+        <!-- Nguyên âm đôi -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="section-title">Nguyên âm đôi (Diphthongs)</h2>
+            </div>
+            <div class="row">
+                <% ipaData.diphthongs.forEach(diphthong => { %>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card ipa-card diphthong-card h-100">
+                            <div class="card-body text-center">
+                                <div class="ipa-symbol-container">
+                                    <div class="ipa-symbol">/<%= diphthong.symbol %>/</div>
+                                    <button class="play-btn" onclick="playSound('<%= diphthong.example %>', this)" title="Nghe phát âm">
+                                        <i class="bi bi-volume-up"></i> 🔊
+                                    </button>
+                                </div>
+                                <div class="ipa-example"><%= diphthong.example %></div>
+                                <div class="ipa-vietnamese"><%= diphthong.vietnamese %></div>
+                                <div class="ipa-description"><%= diphthong.description %></div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nút luyện tập -->
+    <a href="/ipa/practice" class="btn btn-primary practice-btn">
+        <i class="bi bi-play-circle"></i> Luyện tập IPA
+    </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Kiểm tra hỗ trợ Web Speech API
+        const isSpeechSupported = 'speechSynthesis' in window;
+        
+        if (isSpeechSupported) {
+            console.log('Web Speech API được hỗ trợ');
+            // Log danh sách voice
+            window.speechSynthesis.onvoiceschanged = function() {
+                console.log('Danh sách voice:', speechSynthesis.getVoices());
+            };
+            // Gọi luôn để log nếu đã có sẵn
+            console.log('Danh sách voice:', speechSynthesis.getVoices());
+        } else {
+            console.log('Web Speech API không được hỗ trợ');
+            // Ẩn tất cả nút play nếu không hỗ trợ
+            document.addEventListener('DOMContentLoaded', function() {
+                const playButtons = document.querySelectorAll('.play-btn');
+                playButtons.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                
+                // Hiển thị thông báo
+                const alert = document.querySelector('.alert-info');
+                if (alert) {
+                    alert.innerHTML = '<strong>⚠️ Lưu ý:</strong> Trình duyệt của bạn không hỗ trợ phát âm tự động. Vui lòng sử dụng Chrome, Firefox, hoặc Safari.';
+                    alert.className = 'alert alert-warning text-center mb-4';
+                }
+            });
+        }
+
+        let currentSpeech = null;
+        let currentButton = null;
+
+        function playSound(text, button) {
+            if (!isSpeechSupported) {
+                alert('Trình duyệt của bạn không hỗ trợ phát âm tự động');
+                return;
+            }
+
+            // Dừng phát âm hiện tại nếu có
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+            }
+
+            // Bỏ highlight nút trước đó
+            if (currentButton) {
+                currentButton.classList.remove('playing');
+            }
+
+            // Tạo utterance mới
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8; // Tốc độ chậm hơn để dễ nghe
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            // Chọn voice tiếng Anh
+            const voices = speechSynthesis.getVoices();
+            const enVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+            if (enVoice) {
+                utterance.voice = enVoice;
+            }
+
+            // Highlight nút hiện tại
+            button.classList.add('playing');
+            currentButton = button;
+
+            // Xử lý sự kiện kết thúc
+            utterance.onend = function(event) {
+                button.classList.remove('playing');
+                currentButton = null;
+            };
+
+            utterance.onerror = function(event) {
+                button.classList.remove('playing');
+                currentButton = null;
+                // Không hiện alert nữa, chỉ log lỗi
+                console.error('Lỗi phát âm:', event);
+            };
+
+            // Phát âm
+            speechSynthesis.speak(utterance);
+            currentSpeech = utterance;
+        }
+
+        // Dừng phát âm khi rời trang
+        window.addEventListener('beforeunload', function() {
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+            }
+        });
+
+        // Thêm tính năng phát âm chậm cho từng từ
+        function playSlowPronunciation(text, button) {
+            if (!isSpeechSupported) {
+                alert('Trình duyệt của bạn không hỗ trợ phát âm tự động');
+                return;
+            }
+
+            const words = text.split(' ');
+            let currentWordIndex = 0;
+
+            function playNextWord() {
+                if (currentWordIndex < words.length) {
+                    const word = words[currentWordIndex];
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.6; // Chậm hơn nữa
+                    utterance.pitch = 1.0;
+                    utterance.volume = 1.0;
+                    // Chọn voice tiếng Anh
+                    const voices = speechSynthesis.getVoices();
+                    const enVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+                    if (enVoice) {
+                        utterance.voice = enVoice;
+                    }
+
+                    utterance.onend = function() {
+                        currentWordIndex++;
+                        setTimeout(playNextWord, 300); // Nghỉ 300ms giữa các từ
+                    };
+
+                    utterance.onerror = function(event) {
+                        button.classList.remove('playing');
+                        currentButton = null;
+                        console.error('Lỗi phát âm chậm:', event.error);
+                    };
+
+                    speechSynthesis.speak(utterance);
+                } else {
+                    button.classList.remove('playing');
+                    currentButton = null;
+                }
+            }
+
+            // Dừng phát âm hiện tại
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+            }
+
+            if (currentButton) {
+                currentButton.classList.remove('playing');
+            }
+
+            button.classList.add('playing');
+            currentButton = button;
+            playNextWord();
+        }
+
+        // Thêm nút phát âm chậm (double click)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!isSpeechSupported) return;
+
+            const playButtons = document.querySelectorAll('.play-btn');
+            playButtons.forEach(button => {
+                let clickCount = 0;
+                let clickTimer = null;
+
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    clickCount++;
+                    
+                    if (clickCount === 1) {
+                        clickTimer = setTimeout(function() {
+                            // Single click - phát âm bình thường
+                            const text = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                            playSound(text, this);
+                            clickCount = 0;
+                        }.bind(this), 300);
+                    } else {
+                        // Double click - phát âm chậm
+                        clearTimeout(clickTimer);
+                        const text = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                        playSlowPronunciation(text, this);
+                        clickCount = 0;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

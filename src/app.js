@@ -9,7 +9,9 @@ const app = express();
 // Cấu hình middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Cấu hình static files
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Cấu hình view engine
 app.set('view engine', 'ejs');
@@ -42,12 +44,24 @@ const lessonRoutes = require('./routes/lessonRoutes');
 const vocabularyRoutes = require('./routes/vocabularyRoutes');
 const practiceRoutes = require('./routes/practiceRoutes');
 const irregularVerbRoutes = require('./routes/irregularVerbRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const ipaRoutes = require('./routes/ipaRoutes');
 
 app.use('/auth', authRoutes);
 app.use('/lessons', lessonRoutes);
 app.use('/vocabulary', vocabularyRoutes);
 app.use('/practice', practiceRoutes);
 app.use('/irregular-verbs', irregularVerbRoutes);
+app.use('/profile', profileRoutes);
+app.use('/ipa', ipaRoutes);
+
+// Route đặc biệt để phục vụ ảnh
+app.get('/images/:set/:type/:filename', (req, res) => {
+    const { set, type, filename } = req.params;
+    const imagePath = path.join(__dirname, '..', 'public', 'images', set, type, filename);
+    console.log('Đang tìm ảnh tại:', imagePath);
+    res.sendFile(imagePath);
+});
 
 app.get('/', (req, res) => {
     res.render('index', { title: 'Học Tiếng Anh' });
