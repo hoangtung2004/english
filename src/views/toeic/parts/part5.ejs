@@ -1,0 +1,18 @@
+<div class="toeic-part toeic-part-5">
+  <h4 class="mb-4">Part 5: Incomplete Sentences</h4>
+  <% questions.forEach(function(q, idx) { %>
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="mb-2"><strong>Câu <%= q.number %>:</strong> <%= q.content %></div>
+        <form>
+          <% q.choices.forEach(function(ans) { %>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="answer<%= idx %>" value="<%= ans.label %>">
+              <label class="form-check-label"><%= ans.label %>. <%= ans.text %></label>
+            </div>
+          <% }) %>
+        </form>
+      </div>
+    </div>
+  <% }) %>
+</div> 

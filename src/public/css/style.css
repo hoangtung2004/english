@@ -5,10 +5,10 @@ body {
     flex-direction: column;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
+    padding-top: 56px; /* Chiều cao mặc định của navbar */
 }
 
 .navbar {
-    margin-bottom: 2rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 

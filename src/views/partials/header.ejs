@@ -1,0 +1,53 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">Học Tiếng Anh</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/lessons">Bài học</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/vocabulary">Từ vựng</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/practice">Luyện tập</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/irregular-verbs">Động từ bất quy tắc</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/toeic">Thi TOEIC</a>
+                </li>
+                <% if (user) { %>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <img src="<%= user.avatarUrl %>" alt="Avatar" class="rounded-circle me-2" style="width: 25px; height: 25px; object-fit: cover;">
+                            <%= user.username %>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <% if (user.role === 'admin') { %>
+                                <li><a class="dropdown-item" href="/admin">Quản lý</a></li>
+                            <% } %>
+                            <li><a class="dropdown-item" href="/profile">Tài khoản</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/auth/logout">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/login">Đăng nhập</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/register">Đăng ký</a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav> 

@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
+    avatarUrl: {
+        type: String,
+        default: '/images/avatars/default.png'
+    },
     level: {
         type: String,
         enum: ['beginner', 'intermediate', 'advanced'],

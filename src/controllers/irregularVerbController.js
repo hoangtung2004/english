@@ -2,7 +2,7 @@ const IrregularVerb = require('../models/IrregularVerb');
 
 exports.getIrregularVerbs = async (req, res) => {
     try {
-        const verbs = await IrregularVerb.find().sort({ v1: 1 });
+        const verbs = await IrregularVerb.find().sort({ baseForm: 1 }).lean();
         res.render('irregular-verbs/index', {
             title: 'Động từ bất quy tắc',
             verbs

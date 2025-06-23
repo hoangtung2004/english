@@ -46,6 +46,7 @@ const practiceRoutes = require('./routes/practiceRoutes');
 const irregularVerbRoutes = require('./routes/irregularVerbRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const ipaRoutes = require('./routes/ipaRoutes');
+const toeicRoutes = require('./routes/toeicRoutes');
 
 app.use('/auth', authRoutes);
 app.use('/lessons', lessonRoutes);
@@ -54,6 +55,7 @@ app.use('/practice', practiceRoutes);
 app.use('/irregular-verbs', irregularVerbRoutes);
 app.use('/profile', profileRoutes);
 app.use('/ipa', ipaRoutes);
+app.use('/toeic', toeicRoutes);
 
 // Route đặc biệt để phục vụ ảnh
 app.get('/images/:set/:type/:filename', (req, res) => {

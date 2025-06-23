@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 
 // Hiển thị trang profile
 exports.getProfile = async (req, res) => {
@@ -85,5 +87,39 @@ exports.changePassword = async (req, res) => {
         res.redirect('/profile?success=Đổi mật khẩu thành công');
     } catch (error) {
         res.redirect('/profile?error=Lỗi khi đổi mật khẩu');
+    }
+};
+
+// Cập nhật avatar
+exports.updateAvatar = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.redirect('/profile?error=Vui lòng chọn một file ảnh');
+        }
+
+        const user = await User.findById(req.session.user._id);
+
+        // Xóa avatar cũ nếu nó không phải là avatar mặc định
+        if (user.avatarUrl && user.avatarUrl !== '/images/avatars/default.png') {
+            const oldAvatarPath = path.join(__dirname, '..', '..', 'public', user.avatarUrl);
+            if (fs.existsSync(oldAvatarPath)) {
+                fs.unlinkSync(oldAvatarPath);
+            }
+        }
+
+        // Cập nhật đường dẫn avatar mới
+        const newAvatarUrl = '/images/avatars/' + req.file.filename;
+        const updatedUser = await User.findByIdAndUpdate(
+            req.session.user._id,
+            { avatarUrl: newAvatarUrl },
+            { new: true }
+        ).select('-password');
+
+        // Cập nhật session
+        req.session.user = updatedUser;
+
+        res.redirect('/profile?success=Cập nhật ảnh đại diện thành công');
+    } catch (error) {
+        res.redirect('/profile?error=Lỗi khi cập nhật ảnh đại diện: ' + error.message);
     }
 }; 

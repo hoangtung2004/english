@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const irregularVerbSchema = new mongoose.Schema({
-    v1: { type: String, required: true },
-    v2: { type: String, required: true },
-    v3: { type: String, required: true },
-    meaning: { type: String, required: true },
+    baseForm: { type: String, required: true },
+    pastSimple: { type: String, required: true },
+    pastParticiple: { type: String, required: true },
+    meaning: { type: String, default: '' },
     createdAt: { type: Date, default: Date.now }
 });
 

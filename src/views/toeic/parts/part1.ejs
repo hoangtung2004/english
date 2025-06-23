@@ -1,0 +1,69 @@
+<div class="toeic-part toeic-part-1">
+  <h4 class="mb-4">Part 1: Photo (Mô tả hình ảnh)</h4>
+  
+  <% if (test.parts[partNumber-1] && test.parts[partNumber-1].audioUrl) { %>
+    <div class="mb-4">
+      <audio controls controlsList="nodownload noplaybackrate" class="w-100">
+        <source src="<%= test.parts[partNumber-1].audioUrl %>" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  <% } %>
+
+  <% questions.forEach(function(q, idx) { %>
+    <div class="card mb-4" data-question-id="<%= q._id %>">
+      <div class="row g-0 align-items-center">
+        <div class="col-md-5 text-center p-3">
+          <% if (q.imageUrl) { %>
+            <img src="<%= q.imageUrl %>" class="img-fluid rounded" alt="Photo <%= idx+1 %>" style="max-height: 220px;">
+          <% } else { %>
+            <div class="bg-light border rounded p-5">[No Image]</div>
+          <% } %>
+        </div>
+        <div class="col-md-7 p-3">
+          <div class="mb-3">
+            <strong>Câu <%= q.number %>:</strong>
+          </div>
+          <form>
+            <% q.choices.forEach(function(ans) { %>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="answer<%= idx %>" value="<%= ans.label %>">
+                <label class="form-check-label"><%= ans.label %></label>
+              </div>
+            <% }) %>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% }) %>
+  <script>
+    // Lưu đáp án vào localStorage khi chọn
+    document.querySelectorAll('.toeic-part-1 .form-check-input').forEach(function(input) {
+      input.addEventListener('change', function() {
+        const testId = '<%= testId %>';
+        const partNumber = '<%= partNumber %>';
+        const questionId = this.closest('[data-question-id]').getAttribute('data-question-id');
+        const answer = this.value;
+        const key = `toeic_answers_${testId}`;
+        let answers = JSON.parse(localStorage.getItem(key)) || {};
+        if (!answers[partNumber]) answers[partNumber] = {};
+        answers[partNumber][questionId] = answer;
+        localStorage.setItem(key, JSON.stringify(answers));
+      });
+    });
+    // Khi load lại part, tự động đánh dấu đáp án đã chọn
+    window.addEventListener('DOMContentLoaded', function() {
+      const testId = '<%= testId %>';
+      const partNumber = '<%= partNumber %>';
+      const key = `toeic_answers_${testId}`;
+      let answers = JSON.parse(localStorage.getItem(key)) || {};
+      if (answers[partNumber]) {
+        Object.entries(answers[partNumber]).forEach(([questionId, answer]) => {
+          const selector = `.toeic-part-1 [data-question-id='${questionId}'] .form-check-input[value='${answer}']`;
+          const input = document.querySelector(selector);
+          if (input) input.checked = true;
+        });
+      }
+    });
+  </script>
+</div> 

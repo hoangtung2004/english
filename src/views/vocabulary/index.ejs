@@ -1,88 +1,54 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/">Học Tiếng Anh</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/lessons">Bài học</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/vocabulary">Từ vựng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/practice">Luyện tập</a>
-                    </li>
-                </ul>
-            </div>
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+    <% if (!lesson) { %>
+    <h1 class="mb-4">Học từ vựng</h1>
+    <p class="lead">Học từ vựng theo chủ đề và trình độ phù hợp với bạn</p>
+    <% } %>
+
+    <% if (typeof error !== 'undefined') { %>
+        <div class="alert alert-danger" role="alert">
+            <%= error %>
         </div>
-    </nav>
+    <% } %>
 
-    <div class="container mt-4">
-        <% if (!lesson) { %>
-        <h1 class="mb-4">Học từ vựng</h1>
-        <p class="lead">Học từ vựng theo chủ đề và trình độ phù hợp với bạn</p>
-        <% } %>
-
-        <% if (typeof error !== 'undefined') { %>
-            <div class="alert alert-danger" role="alert">
-                <%= error %>
-            </div>
-        <% } %>
-
-        <% if (vocabularies.length === 0) { %>
-            <div class="alert alert-info">
-                Không tìm thấy từ vựng nào phù hợp với bộ lọc của bạn.
-            </div>
-        <% } else { %>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                <% vocabularies.forEach(vocabulary => { %>
-                    <div class="col">
-                        <div class="card h-100">
-                            <% if (vocabulary.image) { %>
-                                <img src="<%= vocabulary.image %>" class="card-img-top" alt="<%= vocabulary.word %>">
-                            <% } %>
-                            <div class="card-body">
-                                <h5 class="card-title"><%= vocabulary.word %></h5>
-                                <p class="card-text"><%= vocabulary.meaning %></p>
-                                <a href="/vocabulary/<%= vocabulary._id %>" class="btn btn-primary">Học ngay</a>
-                            </div>
+    <% if (vocabularies.length === 0) { %>
+        <div class="alert alert-info">
+            Không tìm thấy từ vựng nào phù hợp với bộ lọc của bạn.
+        </div>
+    <% } else { %>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <% vocabularies.forEach(vocabulary => { %>
+                <div class="col">
+                    <div class="card h-100">
+                        <% if (vocabulary.image) { %>
+                            <img src="<%= vocabulary.image %>" class="card-img-top" alt="<%= vocabulary.word %>">
+                        <% } %>
+                        <div class="card-body">
+                            <h5 class="card-title"><%= vocabulary.word %></h5>
+                            <p class="card-text"><%= vocabulary.meaning %></p>
+                            <a href="/vocabulary/<%= vocabulary._id %>" class="btn btn-primary">Học ngay</a>
                         </div>
                     </div>
-                <% }); %>
-            </div>
+                </div>
+            <% }); %>
+        </div>
 
-            <% if (totalPages > 1) { %>
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <% for(let i = 1; i <= totalPages; i++) { %>
-                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                <a class="page-link" href="?page=<%= i %><%= topic ? '&topic=' + topic : '' %><%= category ? '&category=' + category : '' %>">
-                                    <%= i %>
-                                </a>
-                            </li>
-                        <% } %>
-                    </ul>
-                </nav>
-            <% } %>
+        <% if (totalPages > 1) { %>
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %><%= topic ? '&topic=' + topic : '' %><%= category ? '&category=' + category : '' %>">
+                                <%= i %>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
         <% } %>
-    </div>
+    <% } %>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> 
+<%- include('../partials/footer') %> 

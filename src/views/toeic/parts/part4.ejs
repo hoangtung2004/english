@@ -1,0 +1,63 @@
+<div class="toeic-part toeic-part-4">
+  <h4 class="mb-4">Part 4: Short Talks (Bài nói ngắn)</h4>
+  
+  <% if (groups && groups.length > 0 && groups[0].audioUrl) { %>
+    <div class="mb-4">
+      <audio controls controlsList="nodownload noplaybackrate" class="w-100">
+        <source src="<%= groups[0].audioUrl %>" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  <% } %>
+
+  <% groups.forEach(function(group, gIdx) { %>
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="mb-3">
+          <strong>Bài nói <%= gIdx + 1 %></strong>
+        </div>
+        <% group.questions.forEach(function(q, idx) { %>
+          <div class="mb-3" data-question-id="<%= q._id %>">
+            <strong>Câu <%= q.number %>:</strong> <%= q.content %>
+            <form>
+              <% q.choices.forEach(function(ans) { %>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="radio" name="answer<%= gIdx %>_<%= idx %>" value="<%= ans.label %>">
+                  <label class="form-check-label"><%= ans.label %></label>
+                </div>
+              <% }) %>
+            </form>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% }) %>
+  <script>
+    document.querySelectorAll('.toeic-part-4 .form-check-input').forEach(function(input) {
+      input.addEventListener('change', function() {
+        const testId = '<%= testId %>';
+        const partNumber = '<%= partNumber %>';
+        const questionId = this.closest('[data-question-id]').getAttribute('data-question-id');
+        const answer = this.value;
+        const key = `toeic_answers_${testId}`;
+        let answers = JSON.parse(localStorage.getItem(key)) || {};
+        if (!answers[partNumber]) answers[partNumber] = {};
+        answers[partNumber][questionId] = answer;
+        localStorage.setItem(key, JSON.stringify(answers));
+      });
+    });
+    window.addEventListener('DOMContentLoaded', function() {
+      const testId = '<%= testId %>';
+      const partNumber = '<%= partNumber %>';
+      const key = `toeic_answers_${testId}`;
+      let answers = JSON.parse(localStorage.getItem(key)) || {};
+      if (answers[partNumber]) {
+        Object.entries(answers[partNumber]).forEach(([questionId, answer]) => {
+          const selector = `.toeic-part-4 [data-question-id='${questionId}'] .form-check-input[value='${answer}']`;
+          const input = document.querySelector(selector);
+          if (input) input.checked = true;
+        });
+      }
+    });
+  </script>
+</div> 
