@@ -5,7 +5,7 @@ const { isAuthenticated } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
 // Routes cho profile
-router.get('/', isAuthenticated, profileController.getProfile);
+router.get('/', isAuthenticated, profileController.index);
 router.post('/update', isAuthenticated, profileController.updateProfile);
 router.post('/change-password', isAuthenticated, profileController.changePassword);
 

@@ -27,7 +27,7 @@
                 <% if (user) { %>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <img src="<%= user.avatarUrl %>" alt="Avatar" class="rounded-circle me-2" style="width: 25px; height: 25px; object-fit: cover;">
+                            <img src="<%= user.avatarUrl || '/images/avatars/default.png' %>" alt="Avatar" class="rounded-circle me-2" style="width: 25px; height: 25px; object-fit: cover;">
                             <%= user.username %>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">

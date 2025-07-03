@@ -63,15 +63,47 @@
             top: 0;
             opacity: 0;
         }
+        .profile-sidebar {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 24px 0;
+        }
+        .profile-sidebar .nav-link {
+            color: #222;
+            font-weight: 500;
+            border-radius: 0;
+            margin-bottom: 8px;
+        }
+        .profile-sidebar .nav-link.active {
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: 700;
+        }
+        .profile-tab { display: none; }
+        .profile-tab.active { display: block; }
     </style>
 </head>
 <body>
     <%- include('../partials/header') %>
-
-    <div class="container mt-5 mb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Thông báo -->
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="profile-sidebar">
+                    <ul class="nav flex-column nav-pills" id="profileTabs">
+                        <li class="nav-item mb-2">
+                            <a class="nav-link active" data-tab="info" href="#">Thông tin cá nhân</a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a class="nav-link" data-tab="vocab" href="#">Từ vựng đã học</a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a class="nav-link" data-tab="toeic" href="#">Kết quả thi TOEIC</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-9">
                 <% if (success) { %>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <%= success %>
@@ -84,110 +116,160 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <% } %>
-
-                <div class="card profile-card">
-                    <!-- Header -->
-                    <div class="profile-header">
-                        <div class="profile-avatar mb-3">
-                            <img src="<%= user.avatarUrl %>" alt="Avatar của <%= user.username %>">
-                        </div>
-                        <h2><%= user.username %></h2>
-                        <p class="mb-0">
-                            <span class="badge bg-light text-dark fs-6">
-                                <%= user.role === 'admin' ? 'Quản trị viên' : 'Người dùng' %>
-                            </span>
-                        </p>
-                    </div>
-
-                    <div class="card-body p-4 p-md-5">
-                        <!-- Thay đổi ảnh đại diện -->
-                        <div class="form-section">
-                             <h4 class="mb-3">Ảnh đại diện</h4>
-                             <form action="/profile/update-avatar" method="POST" enctype="multipart/form-data">
-                                <div class="d-flex align-items-center">
-                                    <input type="file" name="avatar" class="form-control me-3" required>
-                                    <button type="submit" class="btn btn-secondary btn-custom text-nowrap">Tải lên</button>
-                                </div>
-                                <div class="form-text mt-2">Chọn ảnh vuông với định dạng .jpg, .png hoặc .gif (dung lượng tối đa 5MB).</div>
-                             </form>
-                        </div>
-                        
-                        <!-- Thông tin cá nhân -->
-                        <div class="form-section">
-                            <h4 class="mb-3">Thông tin cá nhân</h4>
-                            <form action="/profile/update" method="POST">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="username" class="form-label">Tên đăng nhập</label>
-                                        <input type="text" class="form-control" id="username" name="username" 
-                                               value="<%= user.username %>" required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email" 
-                                               value="<%= user.email %>" required>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="fullName" class="form-label">Họ và tên</label>
-                                    <input type="text" class="form-control" id="fullName" name="fullName" 
-                                           value="<%= user.fullName || '' %>">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-custom">
-                                    <i class="bi bi-check-circle"></i> Cập nhật thông tin
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Đổi mật khẩu -->
-                        <div class="form-section">
-                            <h4 class="mb-3">Đổi mật khẩu</h4>
-                            <form action="/profile/change-password" method="POST">
-                                <div class="mb-3">
-                                    <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
-                                    <input type="password" class="form-control" id="currentPassword" 
-                                           name="currentPassword" required>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="newPassword" class="form-label">Mật khẩu mới</label>
-                                        <input type="password" class="form-control" id="newPassword" 
-                                               name="newPassword" required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
-                                        <input type="password" class="form-control" id="confirmPassword" 
-                                               name="confirmPassword" required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-warning btn-custom">
-                                    <i class="bi bi-shield-lock"></i> Đổi mật khẩu
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Thông tin tài khoản -->
-                        <div class="p-3 bg-light rounded-3">
-                            <h4 class="mb-3">Thông tin tài khoản</h4>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Ngày tạo:</strong> <%= new Date(user.createdAt).toLocaleDateString('vi-VN') %></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Vai trò:</strong> 
-                                        <span class="badge bg-<%= user.role === 'admin' ? 'danger' : 'info' %>">
-                                            <%= user.role === 'admin' ? 'Quản trị viên' : 'Người dùng' %>
-                                        </span>
-                                    </p>
-                                </div>
+                <!-- Tab: Thông tin cá nhân -->
+                <div id="tab-info" class="profile-tab active">
+                    <h2 class="mb-4">Thông tin cá nhân</h2>
+                    <form method="post" action="/profile/update">
+                        <div class="mb-3 text-center">
+                            <img src="<%= user.avatarUrl || '/images/avatars/default.png' %>" alt="avatar" class="rounded-circle" width="100" height="100">
+                            <div class="mt-2">
+                                <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#avatarModal">Đổi avatar</a>
                             </div>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Username</label>
+                                <input type="text" name="username" class="form-control" value="<%= user.username %>" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="<%= user.email %>" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </form>
+                    <div class="mt-4">
+                        <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#passwordModal">Đổi mật khẩu</a>
+                    </div>
+                </div>
+                <!-- Tab: Từ vựng đã học -->
+                <div id="tab-vocab" class="profile-tab">
+                    <h2 class="mb-4">Từ vựng đã học</h2>
+                    <div class="table-responsive mb-5">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Từ</th>
+                                <th>Nghĩa</th>
+                                <th>Cấp độ</th>
+                                <th>Số lần đúng</th>
+                                <th>Số lần sai</th>
+                                <th>Ngày ôn tiếp theo</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% if (uservocabularyprogresses && uservocabularyprogresses.length > 0) { %>
+                                <% uservocabularyprogresses.forEach(item => { %>
+                                    <tr>
+                                        <td><%= item.vocabulary ? item.vocabulary.word : '' %></td>
+                                        <td><%= item.vocabulary ? item.vocabulary.meaning : '' %></td>
+                                        <td><%= item.level %></td>
+                                        <td><%= item.correctCount %></td>
+                                        <td><%= item.wrongCount %></td>
+                                        <td><%= item.nextReviewDate ? item.nextReviewDate.toLocaleDateString('vi-VN') : '' %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="6" class="text-center">Bạn chưa học từ vựng nào.</td></tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Tab: Kết quả thi TOEIC -->
+                <div id="tab-toeic" class="profile-tab">
+                    <h2 class="mb-4">Kết quả thi TOEIC</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Tên đề</th>
+                                <th>Điểm</th>
+                                <th>Ngày thi</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% if (toeicResults && toeicResults.length > 0) { %>
+                                <% toeicResults.forEach(result => { %>
+                                    <tr>
+                                        <td><%= result.testId ? result.testId.title : '' %></td>
+                                        <td><%= result.score %></td>
+                                        <td><%= result.finishedAt ? result.finishedAt.toLocaleDateString('vi-VN') : '' %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="3" class="text-center">Bạn chưa có kết quả thi TOEIC nào.</td></tr>
+                            <% } %>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
+        <!-- Modal đổi avatar -->
+        <div class="modal fade" id="avatarModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="post" action="/profile/update-avatar" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Đổi ảnh đại diện</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="file" name="avatar" accept="image/*" class="form-control" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Lưu</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal đổi mật khẩu -->
+        <div class="modal fade" id="passwordModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="post" action="/profile/change-password">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Đổi mật khẩu</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Mật khẩu hiện tại</label>
+                                <input type="password" name="currentPassword" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mật khẩu mới</label>
+                                <input type="password" name="newPassword" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nhập lại mật khẩu mới</label>
+                                <input type="password" name="confirmPassword" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Lưu</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
     <%- include('../partials/footer') %>
+    <script>
+        document.querySelectorAll('#profileTabs .nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('#profileTabs .nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.profile-tab').forEach(tab => tab.classList.remove('active'));
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html> 
