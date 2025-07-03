@@ -1,9 +1,9 @@
 # English Learning Web App
 
 ❗ Yêu cầu công nghệ
-   -MongoDB 
-   -NodeJS, Npm (Node Package Manager)
-   -Git, Github
+   - MongoDB 
+   - NodeJS, Npm (Node Package Manager)
+   - Git, Github
 
 
 1. Clone project:
@@ -11,7 +11,7 @@
    git clone https://github.com/hoangtung2004/english
 
 3. Cài đặt dependencies:
-   -Đi đến thư mục english trong terminal 
+   - Đi đến thư mục english trong terminal 
    - Thực hiện lệnh "npm install" để cài đặt module
 
 4. Tạo file '.env' từ mẫu '.env.example'
