@@ -3,23 +3,21 @@
 ## Cài đặt
 
 1. Clone project:
-   ```
-   git clone <link-repo>
-   cd <tên-thư-mục-project>
-   ```
 
-2. Cài đặt dependencies:
+   git clone https://github.com/hoangtung2004/english
+
+3. Cài đặt dependencies:
    ```
    npm install
    ```
 
-3. Tạo file `.env` từ mẫu:
+4. Tạo file `.env` từ mẫu:
    ```
    cp .env.example .env
    ```
    (Chỉnh sửa thông tin kết nối MongoDB nếu cần)
 
-4. Chạy project:
+5. Chạy project:
    ```
    npm start
    ```
@@ -28,4 +26,4 @@
    node src/app.js
    ```
 
-5. Truy cập: [http://localhost:3000](http://localhost:3000) 
+6. Truy cập: [http://localhost:3000](http://localhost:3000) 
